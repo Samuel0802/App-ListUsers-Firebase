@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity, TextInput, FlatList } from "react-native";
 import { db } from "./src/firebaseConnection";//Importando banco de dados
-import { doc, getDoc, onSnapshot, setDoc, collection, addDoc, getDocs } from "firebase/firestore"; //Importando os recursos do firebase
+import { doc, getDoc, onSnapshot, setDoc, collection, addDoc, getDocs, updateDoc } from "firebase/firestore"; //Importando os recursos do firebase
 import { Userlist } from "./src/users";
 
 export default function App() {
@@ -11,6 +11,7 @@ export default function App() {
   const [cargo, setCargo] = useState("");
   const [showForm, setShowForm] = useState(true);
   const [users, setUsers] = useState([]); //item da minha lista
+  const [editar , setEditar] = useState("");
 
 
   useEffect(() => {
@@ -92,6 +93,30 @@ export default function App() {
     setShowForm(!showForm); //passando negação do valor atual
   }
 
+  function editUsuario(data){
+    //Recuperando os dados no campo para editar
+    setNome(data.nome);
+    setIdade(data.idade);
+    setCargo(data.cargo);
+    setEditar(data.id);
+
+  }
+
+  //Função para realizar update
+  async function handleEdit(){
+    const docRef = doc(db, "users", editar); //referencia aonde vc quer editar
+    await updateDoc(docRef, { //Atualizou o documento
+      nome: nome,
+      idade: idade,
+      cargo: cargo
+    })
+    setNome(""); //Limpando o input após o envio
+    setIdade("");
+    setCargo("");
+    setEditar(""); //Verificou o campo para mudar status do botão
+
+  }
+
 
 
   return (
@@ -126,9 +151,19 @@ export default function App() {
             onChangeText={(text) => setCargo(text)}
           />
 
-          <TouchableOpacity style={styles.btn} onPress={Registrar}>
-            <Text style={styles.btnText}>Adicionar</Text>
-          </TouchableOpacity>
+    
+          {
+            editar !== "" ? ( //Se for Diferente de uma string vazia 
+              //Vai exibir Editar usuario
+              <TouchableOpacity style={styles.btn} onPress={handleEdit}>
+              <Text style={styles.btnText}>Editar Usuario</Text>
+            </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.btn} onPress={Registrar}>
+              <Text style={styles.btnText}>Adicionar</Text>
+            </TouchableOpacity>
+            )
+          }
         </View>
       )}
 
@@ -143,7 +178,7 @@ export default function App() {
         data={users}
         style={styles.list}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <Userlist data={item} />}
+        renderItem={({ item }) => <Userlist data={item} handleEdit={ (item) => { editUsuario(item)} }/>}
       />
 
     </View>
