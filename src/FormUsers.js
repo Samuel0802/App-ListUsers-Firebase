@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity, TextInput, FlatList } from "react-native";
-import { db } from "./firebaseConnection";//Importando banco de dados
+import { db , auth } from "./firebaseConnection";//Importando banco de dados
 import { doc, getDoc, onSnapshot, setDoc, collection, addDoc, getDocs, updateDoc } from "firebase/firestore"; //Importando os recursos do firebase
 import { Userlist } from "./users";
+import { signOut } from "firebase/auth";
 
 export  function FormUsers() {
 
@@ -118,6 +119,11 @@ export  function FormUsers() {
   }
 
 
+  async function handleLogout() {
+    await signOut(auth);
+  }
+
+
 
   return (
     <View style={styles.container}>
@@ -180,6 +186,11 @@ export  function FormUsers() {
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => <Userlist data={item} handleEdit={ (item) => { editUsuario(item)} }/>}
       />
+
+          <TouchableOpacity style={[styles.btn, {backgroundColor: "red"}]} onPress={handleLogout}>
+        <Text style={styles.btnText}>
+          Sair da conta</Text>
+      </TouchableOpacity>
 
     </View>
   );

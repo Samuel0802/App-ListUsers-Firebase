@@ -2,13 +2,32 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity, TextInput, FlatList } from "react-native";
 import { FormUsers } from "./src/FormUsers";
 import { auth } from "./src/firebaseConnection";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"; //metodo de criar/login do user
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword,onAuthStateChanged, signOut } from "firebase/auth"; //metodo de criar/login do user
 
 export default function App() {
 
   const [Email, setEmail] = useState("");
   const [Senha, setSenha] = useState("");
-  const [authUser, setAuthUser] = useState(null);
+  const [authUser, setAuthUser] = useState(null);// Observa se tem user logado
+  const [loading, setLoading] = useState(true);
+
+  //Renderizar nome user logado no app
+  useEffect( () => {
+ const unsub = onAuthStateChanged(auth, (user) => {
+  if(user){
+    setAuthUser({
+      email:  user.email, 
+      uid: user.id,
+    })
+
+    setLoading(false);
+    return;
+  }
+
+  setAuthUser(null); //Caso não tenha usuario carregar nulo
+    setLoading(false);
+ })
+  },[])
 
   //Criar usuario no firebase
   async function CreateUser() {
@@ -37,15 +56,33 @@ export default function App() {
       console.log("Preencha a senha");
     }
    })
-    
+  
   }
 
+  //Sair da conta
+  async function logout() {
+    await signOut(auth);
 
+    setAuthUser(null);
+  }
+
+//Se tiver algo no authUser carregar algo
+if(authUser){
+ return(
+ <View style={styles.container}>
+   <FormUsers/>
+ </View>
+ );
+}
+ 
   return (
     <View style={styles.container}>
       {/* <FormUsers/> */}
 
-      <Text style={styles.label} >Usuario Logado: {authUser && authUser.email}</Text> 
+       {loading && <Text>Carregando...</Text>} 
+
+       <Text style={styles.label} >Usuario Logado: {authUser && authUser.email}</Text>
+       
   {/* {authUser && authUser.email}: se tiver um AuthUser carregar qual users */}
       <Text style={styles.label} >Email:</Text>
 
@@ -75,6 +112,14 @@ export default function App() {
         <Text style={styles.btnText}>Cadastrar</Text>
       </TouchableOpacity>
 
+    {
+      authUser && (
+        <TouchableOpacity style={[styles.btn, {backgroundColor: "red"}]} onPress={logout}>
+        <Text style={styles.btnText}>Sair</Text>
+      </TouchableOpacity>
+
+      )
+    }
       
 
     </View>
