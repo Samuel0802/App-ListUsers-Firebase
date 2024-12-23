@@ -1,7 +1,8 @@
 
 import { initializeApp } from "firebase/app";
 import {getFirestore} from "firebase/firestore"; //Rodar o banco de dados
-
+import { initializeAuth, getReactNativePersistence } from "firebase/auth"; //Função de Autenticação
+import AsyncStorage from '@react-native-async-storage/async-storage';//Forma que vai persistir com AsyncStorage
 
 const firebaseConfig = {
   apiKey: "AIzaSyBlqHoS6gQVbZ21TVk1H85KpPzrVbFNGEE",
@@ -17,4 +18,9 @@ const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
 
-export {db}; //exportar conexão com banco na app.js
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage) //Forma que vai persistir com AsyncStorage
+});
+
+
+export {db,auth }; //exportar conexão com banco na app.js

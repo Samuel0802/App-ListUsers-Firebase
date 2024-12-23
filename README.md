@@ -11,3 +11,7 @@
 - Cadastra os usuario, cargo, idade
 - Excluir os dados do firebase
 - Editar os dados Firebase
+
+## Async Storage
+
+https://react-native-async-storage.github.io/async-storage/docs/install/
